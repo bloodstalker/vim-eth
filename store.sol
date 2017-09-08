@@ -17,6 +17,10 @@ contract SimpleStorage {
     balances[receiver]+= amount;
   }
 
+  function getBalance(address add) returns (uint) {
+    return balances[add];
+  }
+
   function send(address receiver, uint amount) {
     if (balances[msg.sender] < amount) return;
     balances[msg.sender] -= amount;

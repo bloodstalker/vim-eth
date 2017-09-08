@@ -1,4 +1,3 @@
-
 var log4js = require('./node_modules/log4js')
 var Web3 = require('./node_modules/web3')
 var web3 = new Web3()
@@ -27,7 +26,13 @@ var sol_testcontract = new web3.eth.Contract(abi)
 var send_opt = {from:base, gas : 4000000}
 
 function test1(c) {
-  c.mehtods.send(1, base1)
+  c.methods.set(123456789)
+  var value = c.methods.get()
+  //logger.info(value)
+  c.methods.send(base1, 1)
+  logger.info('sent 1 ether')
+  //logger.info(c.methods.getBalance(base))
+  //logger.info(c.methods.getBalance(base1))
 }
 
 function test(con) {
