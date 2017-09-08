@@ -4,16 +4,22 @@ NPM?=npm
 PKG_MAN?=dnf
 TEST_SERVER?=testrpc
 NODEJS_TEST?=test.js
+EXTRA_BIN_FLAGS?=
+EXTRA_ABI_FLAGS?=
+
 CONTRACTS=$(wildcard *.sol)
 BIN_DIRS=$(wildcard *.bin)
 BIN_FLAGS= --bin
 ABI_FLAGS= --abi
 
-.PHONY: all, clean, run
+BIN_FLAGS+=$(EXTRA_BIN_FLAGS)
+ABI_FLAGS+=$(EXTRA_ABI_FLAGS)
+
+.PHONY: all clean run runtestserver requirements
 
 .DEFAULT: all
 
-all: $(patsubst %.sol, %.bin, $(wildcard *.sol)) run
+all: $(patsubst %.sol, %.bin, $(wildcard *.sol)) runtestserver run
 
 %.bin:%.sol
 	if [[ -d "$(BIN_DIRS)" ]]; then rm -rf $(BIN_DIRS); fi
@@ -28,16 +34,17 @@ clean:
 
 requirements:
 	$(NPM) --version
-	if [[ $? != 0 ]]; then sudo $(PKG_MAN) install npm
+	if [[ $$? != 0 ]]; then sudo $(PKG_MAN) install npm
 	$(NODE)  --version
-	if [[ $? != 0 ]]; then sudo $(PKG_MAN) install nodejs
+	if [[ $$? != 0 ]]; then sudo $(PKG_MAN) install nodejs
 	# npm is known not to be able to install web3 globally on all systems
 	$(NPM) install web3
 	# install ethereum-testrpc
 	sudo $(NPM) install -g ethereum-testrpc
 
 runtestserver:
-	$(TEST_SERVER)
+	ps -aux | grep $(TEST_SERVER) | grep -v grep
+	if [[ $$? != 0 ]]; then $(TEST_SERVER); else :; fi
 
 help:
 	@echo 'the ide part thats missing for eth dev from vim.'

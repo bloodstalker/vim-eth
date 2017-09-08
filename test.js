@@ -1,7 +1,11 @@
 
+var log4js = require('./node_modules/log4js')
 var Web3 = require('./node_modules/web3')
 var web3 = new Web3()
 var fs = require("fs")
+
+var logger = log4js.getLogger();
+logger.level = 'info'
 
 web3.setProvider(new web3.providers.HttpProvider('http://localhost:8545'))
 
@@ -29,12 +33,10 @@ function test1(c) {
 function test(con) {
   sol_testcontract.deploy({data:code, arguments:[base, 1000]}).send(send_opt).then(
     contract => {
-      console.log('test contract mined: ' + contract.options.address)
+      logger.info('test contract mined.');
       con(contract)
     }
   )
 }
 
 test(test1)
-web3.eth.getBalance(base).then(balance => console.log(balance));
-web3.eth.getBalance(base1).then(balance => console.log(balance));
