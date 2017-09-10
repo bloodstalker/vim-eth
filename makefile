@@ -30,7 +30,7 @@ run:
 	$(NODE) $(NODEJS_TEST)
 
 clean:
-	if [[ -d "$(BIN_DIRS)" ]]; then rm -rf $(BIN_DIRS); fi
+	rm -rf *.bin
 
 requirements:
 	$(NPM) --version
@@ -39,17 +39,19 @@ requirements:
 	if [[ $$? != 0 ]]; then sudo $(PKG_MAN) install nodejs
 	# npm is known not to be able to install web3 globally on all systems
 	$(NPM) install web3
+	$(NPM) install log4js
 	# install ethereum-testrpc
 	sudo $(NPM) install -g ethereum-testrpc
 
 runtestserver:
-	ps -aux | grep $(TEST_SERVER) | grep -v grep
-	if [[ $$? != 0 ]]; then $(TEST_SERVER); else :; fi
+	@ps -aux | grep $(TEST_SERVER) | grep -v grep > /dev/null
+	@if [[ $$? != 0 ]]; then $(TEST_SERVER); else :; fi
 
 help:
 	@echo 'the ide part thats missing for eth dev from vim.'
 	@echo '	all: is the default target. builds bin, abi and runs node.'
 	@echo '	run: just runs node on test.js.'
 	@echo '	runtestserver: runs your test server. the default is testrpc.'
+	@echo '	requirements:  installs the requiremnts.'
 	@echo '	clean: remove the bin and abi folder.'
 	@echo '	if you are not running an ancient shell, tab will give you the macros that you can change.'
