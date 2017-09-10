@@ -9,8 +9,8 @@ EXTRA_ABI_FLAGS?=
 
 CONTRACTS=$(wildcard *.sol)
 BIN_DIRS=$(wildcard *.bin)
-BIN_FLAGS= --bin
-ABI_FLAGS= --abi
+BIN_FLAGS= --bin --overwrite
+ABI_FLAGS= --abi --overwrite
 
 BIN_FLAGS+=$(EXTRA_BIN_FLAGS)
 ABI_FLAGS+=$(EXTRA_ABI_FLAGS)
@@ -22,7 +22,6 @@ ABI_FLAGS+=$(EXTRA_ABI_FLAGS)
 all: $(patsubst %.sol, %.bin, $(wildcard *.sol)) runtestserver run
 
 %.bin:%.sol
-	if [[ -d "$(BIN_DIRS)" ]]; then rm -rf $(BIN_DIRS); fi
 	$(SOLC) $(BIN_FLAGS) -o $@ $<
 	$(SOLC) $(ABI_FLAGS) -o $@ $<
 
