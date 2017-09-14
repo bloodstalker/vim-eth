@@ -28,7 +28,7 @@ contract SimpleStorage {
     Sent(msg.sender, receiver, amount);
   }
 
-  function set(uint x) {
+  function set(uint x) constant {
     StoreData = x;
   }
 

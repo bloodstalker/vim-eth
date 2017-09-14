@@ -28,7 +28,7 @@ contract Salsa8 {
     uint32 constant sm0 = 0x6b206574;
 
     function quarter(uint32 y0, uint32 y1, uint32 y2, uint32 y3)
-       returns (uint32, uint32, uint32, uint32)
+       constant returns (uint32, uint32, uint32, uint32)
     {
         uint32 t;
         t = y0 + y3;
@@ -42,16 +42,16 @@ contract Salsa8 {
         return (y0, y1, y2, y3);        
     }
 
-    function get(uint data, uint word) returns (uint32 x)
+    function get(uint data, uint word) constant returns (uint32 x)
     {
         return uint32(data / 2**(256 - word * 32 - 32));
     }
 
-    function put(uint x, uint word) returns (uint) {
+    function put(uint x, uint word) constant returns (uint) {
         return x * 2**(256 - word * 32 - 32);
     }
 
-    function rowround(uint first, uint second) returns (uint f, uint s)
+    function rowround(uint first, uint second) constant returns (uint f, uint s)
     {
         var (a,b,c,d) = quarter(uint32(first / m0), uint32(first / m1), uint32(first / m2), uint32(first / m3));
         f = (((((uint(a) * 2**32) | uint(b)) * 2 ** 32) | uint(c)) * 2**32) | uint(d);
@@ -63,7 +63,7 @@ contract Salsa8 {
         s = (((((((s * 2**32) | uint(a)) * 2**32) | uint(b)) * 2 ** 32) | uint(c)) * 2**32) | uint(d);
     }
 
-    function columnround(uint first, uint second) returns (uint f, uint s)
+    function columnround(uint first, uint second) constant returns (uint f, uint s)
     {
         var (a,b,c,d) = quarter(uint32(first / m0), uint32(first / m4), uint32(second / m0), uint32(second / m4));
         f = (uint(a) * m0) | (uint(b) * m4);
@@ -79,7 +79,7 @@ contract Salsa8 {
         s |= (uint(a) * m7) | (uint(d) * m3);
     }
 
-    function salsa20_20(uint _first, uint _second) returns (uint rfirst, uint rsecond) {
+    function salsa20_20(uint _first, uint _second) constant returns (uint rfirst, uint rsecond) {
         uint first = _first;
         uint second = _second;
         for (uint i = 0; i < 20; i += 2)
@@ -94,10 +94,4 @@ contract Salsa8 {
         }
     }
 
-    function round(uint[4] values) returns (uint[4]) {
-        var (a, b, c, d) = (values[0], values[1], values[2], values[3]);
-        (a, b) = salsa20_20(a ^ c, b ^ d);
-        (c, d) = salsa20_20(a ^ c, b ^ d);
-        return [a, b, c, d];
-    }
 }

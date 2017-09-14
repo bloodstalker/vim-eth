@@ -56,16 +56,12 @@ function salsatest(c) {
   logger.info(_first_str);
   logger.info(_second_str);
 
-  var v1 = c.methods.salsa20_20(_first_str, _second_str).send(send_opt).on(logger);
-  logger.info(v1);
+  c.methods.salsa20_20(_first_str, _second_str).send(send_opt).then(res => logger.info(res));
 }
 
 function test1(c) {
   var input = 123456789;
-  c.methods.set(input).send(send_opt).on(logger);
-  var constint = c.methods.get().send(send_opt).on(logger);
-  logger.info(constint);
-  c.methods.send(base1, 1).send(send_opt).on(logger);
+  c.methods.set(input).send(send_opt).then(() => c.methods.get().call().then(res => logger.info(res)));
 }
 
 function test(con, test_con) {
