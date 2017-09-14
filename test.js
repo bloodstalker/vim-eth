@@ -11,8 +11,8 @@ if (typeof web3 != 'undefined') {
   web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
 }
 
-var base = "0xc6833b8af47eccfb6372bd73b825e39d1ec26fbc"
-var base1 = "0x08ebf4b32debadd78365f2c1a1187f836a306cc1"
+var base = "0x5a7d2aabc0e43ac6c96444400c51dbc538b0f508"
+var base1 = "0x266148e2b4076e39f1670de27a9a00706cf1380d"
 
 web3.eth.personal.getAccounts().then(function (c) {
   console.log(c);
@@ -24,9 +24,45 @@ web3.eth.getBalance(base1).then(balance => console.log(balance));
 var code = fs.readFileSync("./store.bin/SimpleStorage.bin")
 var abi = JSON.parse(fs.readFileSync("./store.bin/SimpleStorage.abi"))
 
+var codesalsa208 = fs.readFileSync("./salsa.bin/Salsa8.bin")
+var abisalsa208 = JSON.parse(fs.readFileSync("./salsa.bin/Salsa8.abi"))
+
 var sol_testcontract = new web3.eth.Contract(abi)
+var salsa_testcontract = new web3.eth.Contract(abisalsa208)
 
 var send_opt = {from:base, gas : 4000000}
+
+function salsatest(c) {
+  var fm7 = "61707865";
+  var fm6 = "04030201";
+  var fm5 = "08070605";
+  var fm4 = "0c0b0a09";
+  var fm3 = "100f0e0d";
+  var fm2 = "3320646e";
+  var fm1 = "01040103";
+  var fm0 = "06020905";
+
+  var sm7 = "00000007";
+  var sm6 = "00000000";
+  var sm5 = "79622d32";
+  var sm4 = "14131211";
+  var sm3 = "18171615";
+  var sm2 = "1c1b1a19";
+  var sm1 = "201f1e1d";
+  var sm0 = "6b206574";
+
+  var _first_str = fm7.concat(fm6, fm5, fm4, fm3, fm2, fm1, fm0);
+  var _second_str = sm7.concat(sm6, sm5, sm4, sm3, sm2, sm1, sm0);
+  logger.info(_first_str);
+  logger.info(_second_str);
+
+  var _first_uint = parseInt(_first_str, 16);
+  var _second_uint = parseInt(_second_str, 16)
+  logger.info(_first_uint);
+  logger.info(_second_uint);
+
+  c.methods.salsa20_8(_first_uint, _second_uint);
+}
 
 function test1(c) {
   c.methods.set(123456789)
@@ -42,13 +78,25 @@ function test1(c) {
   //logger.info(c.methods.getBalance(base1))
 }
 
-function test(con) {
-  sol_testcontract.deploy({data:code, arguments:[base, 1000]}).send(send_opt).then(
+function test(con, test_con) {
+  test_con.deploy({data:code, arguments:[base, 1000]}).send(send_opt).then(
     contract => {
       logger.info('test contract mined.');
       con(contract)
+      logger.info("test contract finished.")
     }
   )
 }
 
-test(test1)
+function deploysalsa(con) {
+  salsa_testcontract.deploy({data:codesalsa208, arguments:[base, 1000]}).send(send_opt).then(
+    contract => {
+      logger.info('salsa test contract mined.');
+      con(contract)
+      logger.info("salsa test contract finished.")
+    }
+  )
+}
+
+//test(salsatest, sol_testcontract);
+deploysalsa(salsatest);

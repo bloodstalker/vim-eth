@@ -21,3 +21,19 @@ contract ERC223 {
 
   event Transfer(address indexed _from, address indexed _to, uint256 indexed _value, bytes _data);
 }
+
+contract ContractReceiver {
+  struct TKN {
+    address sender;
+    uint value;
+    bytes data;
+    bytes4 dig;
+  }
+
+  function tokenFallback(address _from, uint _value, bytes _data) {
+    TKN memory tkn;
+    tkn.sender = _from;
+    tkn.value = _value;
+    tkn.data = _data;
+  }
+}
