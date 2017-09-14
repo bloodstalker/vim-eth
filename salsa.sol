@@ -10,6 +10,23 @@ contract Salsa8 {
     uint constant m6 = 0x100000000;
     uint constant m7 = 0x1;
 
+    uint32 constant fm7 = 0x61707865;
+    uint32 constant fm6 = 0x04030201;
+    uint32 constant fm5 = 0x08070605;
+    uint32 constant fm4 = 0x0c0b0a09;
+    uint32 constant fm3 = 0x100f0e0d;
+    uint32 constant fm2 = 0x3320646e;
+    uint32 constant fm1 = 0x01040103;
+    uint32 constant fm0 = 0x06020905;
+    uint32 constant sm7 = 0x00000007;
+    uint32 constant sm6 = 0x00000000;
+    uint32 constant sm5 = 0x79622d32;
+    uint32 constant sm4 = 0x14131211;
+    uint32 constant sm3 = 0x18171615;
+    uint32 constant sm2 = 0x1c1b1a19;
+    uint32 constant sm1 = 0x201f1e1d;
+    uint32 constant sm0 = 0x6b206574;
+
     function quarter(uint32 y0, uint32 y1, uint32 y2, uint32 y3)
        returns (uint32, uint32, uint32, uint32)
     {
@@ -62,10 +79,10 @@ contract Salsa8 {
         s |= (uint(a) * m7) | (uint(d) * m3);
     }
 
-    function salsa20_8(uint _first, uint _second) returns (uint rfirst, uint rsecond) {
+    function salsa20_20(uint _first, uint _second) returns (uint rfirst, uint rsecond) {
         uint first = _first;
         uint second = _second;
-        for (uint i = 0; i < 8; i += 2)
+        for (uint i = 0; i < 20; i += 2)
         {
             (first, second) = columnround(first, second);
             (first, second) = rowround(first, second);
@@ -79,8 +96,8 @@ contract Salsa8 {
 
     function round(uint[4] values) returns (uint[4]) {
         var (a, b, c, d) = (values[0], values[1], values[2], values[3]);
-        (a, b) = salsa20_8(a ^ c, b ^ d);
-        (c, d) = salsa20_8(a ^ c, b ^ d);
+        (a, b) = salsa20_20(a ^ c, b ^ d);
+        (c, d) = salsa20_20(a ^ c, b ^ d);
         return [a, b, c, d];
     }
 }

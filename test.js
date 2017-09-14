@@ -11,8 +11,8 @@ if (typeof web3 != 'undefined') {
   web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
 }
 
-var base = "0x5a7d2aabc0e43ac6c96444400c51dbc538b0f508"
-var base1 = "0x266148e2b4076e39f1670de27a9a00706cf1380d"
+var base = "0x5a7d2aabc0e43ac6c96444400c51dbc538b0f508";
+var base1 = "0x266148e2b4076e39f1670de27a9a00706cf1380d";
 
 web3.eth.personal.getAccounts().then(function (c) {
   console.log(c);
@@ -21,14 +21,14 @@ web3.eth.personal.getAccounts().then(function (c) {
 web3.eth.getBalance(base).then(balance => console.log(balance));
 web3.eth.getBalance(base1).then(balance => console.log(balance));
 
-var code = fs.readFileSync("./store.bin/SimpleStorage.bin")
-var abi = JSON.parse(fs.readFileSync("./store.bin/SimpleStorage.abi"))
+var code = fs.readFileSync("./store.bin/SimpleStorage.bin");
+var abi = JSON.parse(fs.readFileSync("./store.bin/SimpleStorage.abi"));
 
-var codesalsa208 = fs.readFileSync("./salsa.bin/Salsa8.bin")
-var abisalsa208 = JSON.parse(fs.readFileSync("./salsa.bin/Salsa8.abi"))
+var codesalsa208 = fs.readFileSync("./salsa.bin/Salsa8.bin");
+var abisalsa208 = JSON.parse(fs.readFileSync("./salsa.bin/Salsa8.abi"));
 
-var sol_testcontract = new web3.eth.Contract(abi)
-var salsa_testcontract = new web3.eth.Contract(abisalsa208)
+var sol_testcontract = new web3.eth.Contract(abi);
+var salsa_testcontract = new web3.eth.Contract(abisalsa208);
 
 var send_opt = {from:base, gas : 4000000}
 
@@ -56,30 +56,20 @@ function salsatest(c) {
   logger.info(_first_str);
   logger.info(_second_str);
 
-  var _first_uint = parseInt(_first_str, 16);
-  var _second_uint = parseInt(_second_str, 16)
-  logger.info(_first_uint);
-  logger.info(_second_uint);
-
-  c.methods.salsa20_8(_first_uint, _second_uint);
+  var v1 = c.methods.salsa20_20(_first_str, _second_str).send(send_opt).on(logger);
+  logger.info(v1);
 }
 
 function test1(c) {
-  c.methods.set(123456789)
-  var value = c.methods.get()
-  logger.info(value.eth_getBalance)
-  logger.info(web3.eth.gasPrice);
-  logger.info(web3.eth.getBalance(base));
-  logger.info(web3.eth.getBalance(base1));
-  //logger.info(value)
-  c.methods.send(base1, 1)
-  logger.info('sent 1 ether')
-  //logger.info(c.methods.getBalance(base))
-  //logger.info(c.methods.getBalance(base1))
+  var input = 123456789;
+  c.methods.set(input).send(send_opt).on(logger);
+  var constint = c.methods.get().send(send_opt).on(logger);
+  logger.info(constint);
+  c.methods.send(base1, 1).send(send_opt).on(logger);
 }
 
 function test(con, test_con) {
-  test_con.deploy({data:code, arguments:[base, 1000]}).send(send_opt).then(
+  test_con.deploy({data:code, arguments:[base, 987654321]}).send(send_opt).then(
     contract => {
       logger.info('test contract mined.');
       con(contract)
@@ -89,7 +79,7 @@ function test(con, test_con) {
 }
 
 function deploysalsa(con) {
-  salsa_testcontract.deploy({data:codesalsa208, arguments:[base, 1000]}).send(send_opt).then(
+  salsa_testcontract.deploy({data:codesalsa208}).send(send_opt).then(
     contract => {
       logger.info('salsa test contract mined.');
       con(contract)
@@ -98,5 +88,10 @@ function deploysalsa(con) {
   )
 }
 
-//test(salsatest, sol_testcontract);
+function salsa20_8(con, con_code) {
+  var salsainstance = con.new({data:con_code, from:base, gas:1000000});
+  var salsadeployed = con.at(base);
+}
+
+//test(test1, sol_testcontract);
 deploysalsa(salsatest);
