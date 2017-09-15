@@ -33,6 +33,7 @@ var salsa_testcontract = new web3.eth.Contract(abisalsa208);
 var send_opt = {from:base, gas : 4000000}
 
 function salsatest(c) {
+  //bernstein's example for salsa20-20 on his salsa20 family paper
   var fm7 = "61707865";
   var fm6 = "04030201";
   var fm5 = "08070605";
