@@ -27,6 +27,10 @@ contract Salsa8 {
     uint32 constant sm1 = 0x201f1e1d;
     uint32 constant sm0 = 0x6b206574;
 
+    function getsm0() constant returns(uint32) {
+      return sm0;
+    }
+
     function quarter(uint32 y0, uint32 y1, uint32 y2, uint32 y3)
        constant returns (uint32, uint32, uint32, uint32)
     {

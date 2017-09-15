@@ -56,7 +56,8 @@ function salsatest(c) {
   logger.info(_first_str);
   logger.info(_second_str);
 
-  c.methods.salsa20_20(_first_str, _second_str).send(send_opt).then(res => logger.info(res));
+  //c.methods.getsm0().call().then(res1 => logger.info(res1));
+  c.methods.salsa20_20(_first_str, _second_str).call().then(res => logger.info(res));
 }
 
 function test1(c) {
