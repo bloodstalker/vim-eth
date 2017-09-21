@@ -3,6 +3,7 @@ NODE?=node
 NPM?=npm
 PKG_MAN?=dnf
 TEST_SERVER?=testrpc
+TEST_SERVER_OPTS?=-d &>/dev/null &
 NODEJS_TEST?=test.js
 EXTRA_BIN_FLAGS?=
 EXTRA_ABI_FLAGS?=
@@ -43,8 +44,10 @@ requirements:
 	sudo $(NPM) install -g ethereum-testrpc
 
 runtestserver:
-	@ps -aux | grep $(TEST_SERVER) | grep -v grep > /dev/null
-	@if [[ $$? != 0 ]]; then $(TEST_SERVER); else :; fi
+	$(shell if ! pgrep -x "testrpc" > /dev/null; then $(TEST_SERVER) $(TEST_SERVER_OPTS), disown, echo disowned, sleep 2; else :; fi)
+
+killserver:
+	@echo 'not implemented'
 
 help:
 	@echo 'the ide part thats missing for eth dev from vim.'
