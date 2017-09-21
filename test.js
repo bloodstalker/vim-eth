@@ -11,8 +11,8 @@ if (typeof web3 != 'undefined') {
   web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
 }
 
-var base = "0x5a7d2aabc0e43ac6c96444400c51dbc538b0f508";
-var base1 = "0x266148e2b4076e39f1670de27a9a00706cf1380d";
+var base = "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1";
+var base1 = "0xffcf8fdee72ac11b5c542428b35eef5769c409f0";
 
 web3.eth.personal.getAccounts().then(function (c) {
   console.log(c);
@@ -27,10 +27,28 @@ var abi = JSON.parse(fs.readFileSync("./store.bin/SimpleStorage.abi"));
 var codesalsa208 = fs.readFileSync("./salsa.bin/Salsa8.bin");
 var abisalsa208 = JSON.parse(fs.readFileSync("./salsa.bin/Salsa8.abi"));
 
+
+var popcntcode = fs.readFileSync("./popcnt.bin/PopCnt.bin");
+var abipopcnt = JSON.parse(fs.readFileSync("./popcnt.bin/PopCnt.abi"));
+
 var sol_testcontract = new web3.eth.Contract(abi);
 var salsa_testcontract = new web3.eth.Contract(abisalsa208);
+var popcnt_testcontract = new web3.eth.Contract(abipopcnt);
 
 var send_opt = {from:base, gas : 4000000}
+
+
+function popcnttest(c) {
+  var in1 = 1024;
+  var in2 = 0xffffff;
+
+  c.methods.popcnt32(in1).call().then(res => logger.info(res));
+  c.methods.popcnt64(in2).call().then(res => logger.info(res));
+  //c.methods.clz32(in1).call().then(res => logger.info(res));
+  //c.methods.clz64(in2).call().then(res => logger.info(res));
+  //c.methods.ctz32(in1).call().then(res => logger.info(res));
+  //c.methods.ctz64(in2).call().then(res => logger.info(res));
+}
 
 function salsatest(c) {
   //bernstein's example for salsa20-20 on his salsa20 family paper
@@ -91,5 +109,15 @@ function salsa20_8(con, con_code) {
   var salsadeployed = con.at(base);
 }
 
+function popcnt(con) {
+  popcnt_testcontract.deploy({data:popcntcode}).send(send_opt).then(
+    contract => {
+      logger.info('contract mined.');
+      con(contract)
+      logger.info("contract finished.")
+    }
+  )
+}
 //test(test1, sol_testcontract);
-deploysalsa(salsatest);
+//deploysalsa(salsatest);
+popcnt(popcnttest);

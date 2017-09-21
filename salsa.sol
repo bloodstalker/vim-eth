@@ -86,7 +86,7 @@ contract Salsa8 {
     function salsa20_20(uint _first, uint _second) constant returns (uint rfirst, uint rsecond) {
         uint first = _first;
         uint second = _second;
-        for (uint i = 0; i < 20; i += 2)
+        for (uint i = 0; i < 8; i += 2)
         {
             (first, second) = columnround(first, second);
             (first, second) = rowround(first, second);
