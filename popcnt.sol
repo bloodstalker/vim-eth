@@ -1,8 +1,6 @@
 pragma solidity ^0.4.0;
 
 contract PopCnt {
-  uint popcnt;
-
   function popcnt32(uint32 r1) returns (uint8) {
     uint32 temp = r1;
     temp = (temp & 0x55555555) + ((temp >> 1) & 0x55555555);

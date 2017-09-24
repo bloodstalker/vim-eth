@@ -3,7 +3,7 @@ var Web3 = require('./node_modules/web3')
 var fs = require("fs")
 
 var logger = log4js.getLogger();
-logger.level = 'info'
+logger.level = 'info';
 
 if (typeof web3 != 'undefined') {
   web3 = new Web3.currentProvider();
@@ -44,10 +44,10 @@ function popcnttest(c) {
 
   c.methods.popcnt32(in1).call().then(res => logger.info(res));
   c.methods.popcnt64(in2).call().then(res => logger.info(res));
-  //c.methods.clz32(in1).call().then(res => logger.info(res));
-  //c.methods.clz64(in2).call().then(res => logger.info(res));
-  //c.methods.ctz32(in1).call().then(res => logger.info(res));
-  //c.methods.ctz64(in2).call().then(res => logger.info(res));
+  c.methods.clz32(in1).call().then(res => logger.info(res));
+  c.methods.clz64(in2).call().then(res => logger.info(res));
+  c.methods.ctz32(in1).call().then(res => logger.info(res));
+  c.methods.ctz64(in2).call().then(res => logger.info(res));
 }
 
 function salsatest(c) {
