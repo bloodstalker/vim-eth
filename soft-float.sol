@@ -11,6 +11,8 @@ contract SoftFloat {
     bool inexact;
   }
 
+  flags Flags;
+
   function setFloatRoundingMode(rm _rm) {
     floatRoundingMode = _rm;
   }
@@ -71,9 +73,13 @@ contract SoftFloat {
       }
     }
 
-    roundBits = _sig & 0x7f;
+    roundBits = uint8(_sig & 0x0000007f);
     if (0xfd <= _exp) {
-      if ((0xfd < _exp) || ((_exp == 0xfd) && ()))
+      if ((0xfd < _exp) || ((_exp == 0xfd) && ((_sig + roundIncrement) < 0))) {
+        Flags.overflow = true;
+        Flags.inexact = true;
+        return f32pack(_sign, 0xff, 0);
+      }
     }
   }
 
