@@ -1,7 +1,7 @@
 pragma solidity ^0.4.15;
 
 contract SoftFloat {
-  enum rm {float_rounding_mode, float_round_nearest_even, float_round_to_zero, float_round_up, float_round_down}
+  enum rm {float_round_nearest_even, float_round_to_zero, float_round_up, float_round_down}
   rm floatRoundingMode;
   rm constant def_floatRoundingMode = rm.float_round_nearest_even;
 
@@ -118,22 +118,38 @@ contract SoftFloat {
   function f64NormalizeRoundPack(bool _sign, uint16 _exp, uint64 _sig) pure internal returns(uint64) {
     int8 shiftcount = int8(clz64(_sig) - 11);
     if (shiftcount >= 0) {
-      return f64RoundPack(_sign, int16(_exp) - shiftcount, _sig << shiftcount);
+      return f64RoundPack(_sign, uint16(int16(_exp) - shiftcount), _sig << shiftcount);
     }
     else {
-      return f64RoundPack(_sign, _exp - shiftcount, _sig >> shiftcount);
+      return f64RoundPack(_sign, uint16(int16(_exp) - shiftcount), _sig >> shiftcount);
     }
   }
 
   function i32tof32(uint32 _uint32) pure returns(uint32) {
     bool sign;
     if (_uint32 == 0) return 0;
-    if (_uint32 == 0x80000000) return f32Pack(1, 0x9e, 0);
+    if (_uint32 == 0x80000000) return f32Pack(true, 0x9e, 0);
     sign = _uint32 < 0;
     return f32NormalizeRoundPack(sign, 0x9c, (sign ? -_uint32 : _uint32));
   }
 
-  function i32tof64(uint32 _uint32) pure returns(uint64) {}
+  function i32tof64(int32 _int32) pure returns(uint64) {
+    bool sign;
+    int32 abs_int32;
+    int8 shiftcount;
+    uint64 sig;
+
+    //if (_int32 == 0) return f64Pack(false, 0, 0);
+    //sign = (_int32 < 0);
+    //abs_int32 = sign ? -_int32 : _int32;
+    //shiftcount = clz32(abs_int32) - 11;
+    //if (shiftcount >= 0) {
+    //  sig = abs_int32 << shiftcount;
+    //}
+    //else {
+    //  sig = abs_int32 >> -shiftcount;
+    //}
+  }
 
   function f32toi32(uint32 _f32) pure returns(uint32) {}
 
