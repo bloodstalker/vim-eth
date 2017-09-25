@@ -83,7 +83,11 @@ contract SoftFloat {
     }
   }
 
-  function f32NormalizeRoundPack(bool _sign, uint8 _exp, uint32 _frc) pure internal returns(uint32) {}
+  function f32NormalizeRoundPack(bool _sign, uint8 _exp, uint32 _sig) pure internal returns(uint32) {
+    uint8 shiftcount = clz(_sig) -1;
+    return f32RoundPack(_sign, _exp - shiftcount, _sig<<shiftcount);
+
+  }
 
   function f64ExFrac(uint64 _f64) pure internal returns(uint64) {
     return _f64 & 0x000fffffffffffff;
