@@ -31,7 +31,7 @@ contract SoftFloat {
   }
 
   // expects the value to be normalized a priori
-  function f32pack(bool _sign, uint8 _exp, uint32 _sig) pure internal returns(uint32) {
+  function f32Pack(bool _sign, uint8 _exp, uint32 _sig) pure internal returns(uint32) {
     return (uint32(_sign ? 1 : 0) << 31) + (_exp << 23) + _sig;
   }
 
@@ -78,14 +78,14 @@ contract SoftFloat {
       if ((0xfd < _exp) || ((_exp == 0xfd) && ((_sig + roundIncrement) < 0))) {
         Flags.overflow = true;
         Flags.inexact = true;
-        return f32pack(_sign, 0xff, 0);
+        return f32Pack(_sign, 0xff, 0);
       }
     }
   }
 
   function f32NormalizeRoundPack(bool _sign, uint8 _exp, uint32 _sig) pure internal returns(uint32) {
-    uint8 shiftcount = clz(_sig) -1;
-    return f32RoundPack(_sign, _exp - shiftcount, _sig<<shiftcount);
+    uint8 shiftcount = clz32(_sig) - 1;
+    return f32RoundPack(_sign, _exp - shiftcount, _sig << shiftcount);
 
   }
 
@@ -101,39 +101,69 @@ contract SoftFloat {
     return ((_f64 >> 63) != 0);
   }
 
-  function i32tof32(uint32 _uint32) pure internal returns(uint32) {}
+  function f64normalizesub(uint64 _sig) pure internal returns(uint16, uint64) {
+    uint8 shiftcount = clz64(_sig) - 11;
+    uint64 normalizedSig = _sig << shiftcount;
+    uint8 normalizedExp = shiftcount;
 
-  function i32tof64(uint32 _uint32) pure internal returns(uint64) {}
+    return (normalizedExp, normalizedSig);
+  }
 
-  function f32toi32(uint32 _f32) pure internal returns(uint32) {}
+  function f64Pack(bool _sign, uint16 _exp, uint64 _sig) pure internal returns(uint64) {
+    return (uint64(_sign ? 1 : 0) << 63) + (_exp << 52) + _sig;
+  }
 
-  function f32tof64(uint32 _f32) pure internal returns(uint64) {}
+  function f64RoundPack(bool _sign, uint16 _exp, uint64 _sig) pure internal returns(uint64) {}
 
-  function f64tofi32(uint64 _f64) pure internal returns(uint32) {}
+  function f64NormalizeRoundPack(bool _sign, uint16 _exp, uint64 _sig) pure internal returns(uint64) {
+    int8 shiftcount = int8(clz64(_sig) - 11);
+    if (shiftcount >= 0) {
+      return f64RoundPack(_sign, int16(_exp) - shiftcount, _sig << shiftcount);
+    }
+    else {
+      return f64RoundPack(_sign, _exp - shiftcount, _sig >> shiftcount);
+    }
+  }
 
-  function f64tof32(uint64 _f64) pure internal returns(uint32) {}
+  function i32tof32(uint32 _uint32) pure returns(uint32) {
+    bool sign;
+    if (_uint32 == 0) return 0;
+    if (_uint32 == 0x80000000) return f32Pack(1, 0x9e, 0);
+    sign = _uint32 < 0;
+    return f32NormalizeRoundPack(sign, 0x9c, (sign ? -_uint32 : _uint32));
+  }
 
-  function f32adds(uint32 _f32_1, uint32 _f32_2) pure internal returns(uint32) {}
+  function i32tof64(uint32 _uint32) pure returns(uint64) {}
 
-  function f32addu(uint32 _f32_1, uint32 _f32_2) pure internal returns(uint32) {}
+  function f32toi32(uint32 _f32) pure returns(uint32) {}
 
-  function f32subs(uint32 _f32_1, uint32 _f32_2) pure internal returns(uint32) {}
+  function f32tof64(uint32 _f32) pure returns(uint64) {}
 
-  function f32subu(uint32 _f32_1, uint32 _f32_2) pure internal returns(uint32) {}
+  function f64tofi32(uint64 _f64) pure returns(uint32) {}
 
-  function f32mul(uint32 _f32_1, uint32 _f32_2) pure internal returns(uint32) {}
+  function f64tof32(uint64 _f64) pure returns(uint32) {}
 
-  function f32div(uint32 _f32_1, uint32 _f32_2) pure internal returns(uint32) {}
+  function f32adds(uint32 _f32_1, uint32 _f32_2) pure returns(uint32) {}
 
-  function f32sqrt(uint32 _f32_1, uint32 _f32_2) pure internal returns(uint32) {}
+  function f32addu(uint32 _f32_1, uint32 _f32_2) pure returns(uint32) {}
 
-  function f32eq(uint32 _f32_1, uint32 _f32_2) pure internal returns(uint32) {}
+  function f32subs(uint32 _f32_1, uint32 _f32_2) pure returns(uint32) {}
 
-  function f32le(uint32 _f32_1, uint32 _f32_2) pure internal returns(uint32) {}
+  function f32subu(uint32 _f32_1, uint32 _f32_2) pure returns(uint32) {}
 
-  function f32lt(uint32 _f32_1, uint32 _f32_2) pure internal returns(uint32) {}
+  function f32mul(uint32 _f32_1, uint32 _f32_2) pure returns(uint32) {}
+
+  function f32div(uint32 _f32_1, uint32 _f32_2) pure returns(uint32) {}
+
+  function f32sqrt(uint32 _f32_1, uint32 _f32_2) pure returns(uint32) {}
+
+  function f32eq(uint32 _f32_1, uint32 _f32_2) pure returns(uint32) {}
+
+  function f32le(uint32 _f32_1, uint32 _f32_2) pure returns(uint32) {}
+
+  function f32lt(uint32 _f32_1, uint32 _f32_2) pure returns(uint32) {}
   
-  function popcnt32(uint32 r1) returns (uint8) {
+  function popcnt32(uint32 r1) pure returns (uint8) {
     uint32 temp = r1;
     temp = (temp & 0x55555555) + ((temp >> 1) & 0x55555555);
     temp = (temp & 0x33333333) + ((temp >> 2) & 0x33333333);
@@ -143,7 +173,7 @@ contract SoftFloat {
     return uint8(temp);
   }
 
-  function popcnt64(uint64 r1) returns (uint8) {
+  function popcnt64(uint64 r1) pure returns (uint8) {
     uint64 temp = r1;
     temp = (temp & 0x5555555555555555) + ((temp >> 1) & 0x5555555555555555);
     temp = (temp & 0x3333333333333333) + ((temp >> 2) & 0x3333333333333333);
@@ -154,7 +184,7 @@ contract SoftFloat {
     return uint8(temp);
   }
 
-  function clz32(uint32 r1) returns (uint8) {
+  function clz32(uint32 r1) pure returns (uint8) {
     if (r1 == 0) return 32;
     uint32 temp_r1 = r1;
     uint8 n = 0;
@@ -180,7 +210,7 @@ contract SoftFloat {
     return n;
   }
 
-  function clz64(uint64 r1) returns (uint8) {
+  function clz64(uint64 r1) pure returns (uint8) {
     if (r1 == 0) return 64;
     uint64 temp_r1 = r1;
     uint8 n = 0;
@@ -210,7 +240,7 @@ contract SoftFloat {
     return n;
   }
 
-  function ctz32(uint32 r1) returns (uint8) {
+  function ctz32(uint32 r1) pure returns (uint8) {
     if (r1 == 0) return 32;
     uint32 temp_r1 = r1;
     uint8 n = 0;
@@ -236,7 +266,7 @@ contract SoftFloat {
     return n;
   }
 
-  function ctz64(uint64 r1) returns (uint8) {
+  function ctz64(uint64 r1) pure returns (uint8) {
     if (r1 == 0) return 64;
     uint64 temp_r1 = r1;
     uint8 n = 0;
