@@ -16,7 +16,7 @@ ABI_FLAGS= --abi --overwrite
 BIN_FLAGS+=$(EXTRA_BIN_FLAGS)
 ABI_FLAGS+=$(EXTRA_ABI_FLAGS)
 
-.PHONY: all clean run runtestserver requirements
+.PHONY: all clean run runtestserver requirements rungeth loadgethjs killgeth killserver
 
 .DEFAULT: all
 
@@ -28,6 +28,21 @@ all: $(patsubst %.sol, %.bin, $(wildcard *.sol)) runtestserver run
 
 run:
 	$(NODE) $(NODEJS_TEST)
+
+rungeth: gethattach
+	$(shell geth --dev --rpc &, disown)
+
+gethattach: loadgethjs
+	geth attach ipc:///tmp/ethereum_dev_mode/geth.ipc --exec loadgethjs > address
+
+loadgethjs:
+	@echo var account = personal.newAccount(\'\') > loadgeth.js
+	@echo personal.unlockAccount(account) >> loadgeth.js
+	@echo miner.setEtherbase(account) >> loadgeth.js
+	@echo miner.start() >> loadgeth.js
+
+killgeth:
+	$(shell kill -9 $(pgrep -x "geth"))
 
 clean:
 	rm -rf *.bin
@@ -47,7 +62,7 @@ runtestserver:
 	$(shell if ! pgrep -x "testrpc" > /dev/null; then $(TEST_SERVER) $(TEST_SERVER_OPTS), disown, echo disowned, sleep 2; else :; fi)
 
 killserver:
-	@echo 'not implemented'
+	$(shell kill -9 $(pgrep -x "testrpc"))
 
 help:
 	@echo 'the ide part thats missing for eth dev from vim.'
